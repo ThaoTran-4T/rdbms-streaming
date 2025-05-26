@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+
 import os
 import pyspark.sql.functions as F
 import pyspark.sql.types as T
@@ -6,10 +7,11 @@ from pyspark.sql.types import StructType, StructField, IntegerType, StringType, 
 from pyspark.sql.functions import from_json, col
 
 # os.environ["JAVA_HOME"] = "C:\Program Files\Java\jdk-11.0.17"
-os.environ["SPARK_CONF_DIR"] = "G:/DEMO/KafkaDemo/conf"
-os.environ['PYSPARK_PYTHON'] = "G:/DEMO/KafkaDemo/venv/Scripts/python.exe"
+# os.environ["SPARK_CONF_DIR"] = "/opt/app/conf"
+# os.environ['PYSPARK_PYTHON'] = "/venv/bin/python3"
 
-
+os.environ["SPARK_CONF_DIR"] = "./conf/spark"
+os.environ['PYSPARK_PYTHON'] = "./venv/Scripts/python.exe"
     
 spark = SparkSession.builder \
         .appName("ingest") \
@@ -60,7 +62,7 @@ flattenedData = parsedData.select(
     col("data.payload.after.*")
 ).filter(col("data.payload.op").isin("c"))  # Filter for create, update, delete operations
 
-checkpoint_dir = "s3a://inventorylog.checkpoint"
+checkpoint_dir = "s3a://inventorylog.checkpoint/"
 
 # Define MinIO (S3) output path
 minio_output_path = "s3a://inventorylogs/"
@@ -70,9 +72,8 @@ streamingQuery = flattenedData \
     .writeStream \
     .format("iceberg") \
     .outputMode("append") \
-    .option("path", minio_output_path) \
     .option("checkpointLocation", checkpoint_dir) \
-    .start()
+    .toTable("local.inventory_schema.inventory_logs")
 
 # Start streaming
 streamingQuery.awaitTermination()
