@@ -1,0 +1,14 @@
+FROM apache/hive:4.0.0
+
+USER root
+
+RUN apt-get update -y && \
+    apt-get -y install wget && \
+    wget https://jdbc.postgresql.org/download/postgresql-42.7.3.jar && \
+    wget https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.12.262/aws-java-sdk-bundle-1.12.262.jar && \
+    wget https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.4/hadoop-aws-3.3.4.jar && \
+    mv postgresql-42.7.3.jar /opt/hive/lib/ && \
+    mv aws-java-sdk-bundle-1.12.262.jar /opt/hive/lib/ && \
+    mv hadoop-aws-3.3.4.jar /opt/hive/lib/ 
+
+USER hive
