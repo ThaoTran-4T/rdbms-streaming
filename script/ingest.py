@@ -52,6 +52,7 @@ lines = spark \
   .format("kafka") \
   .option("kafka.bootstrap.servers", "localhost:9092") \
   .option("subscribe", "inventory.public.inventory") \
+  .option("startingOffsets", "earliest") \
   .load()
 
 lines2 = lines.selectExpr("CAST(value AS STRING)")
